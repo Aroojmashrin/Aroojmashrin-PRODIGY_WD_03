@@ -1,0 +1,131 @@
+HTML:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="board" class="board">
+        <div class="cell" onclick="handleClick(0)"></div>
+        <div class="cell" onclick="handleClick(1)"></div>
+        <div class="cell" onclick="handleClick(2)"></div>
+        <div class="cell" onclick="handleClick(3)"></div>
+        <div class="cell" onclick="handleClick(4)"></div>
+        <div class="cell" onclick="handleClick(5)"></div>
+        <div class="cell" onclick="handleClick(6)"></div>
+        <div class="cell" onclick="handleClick(7)"></div>
+        <div class="cell" onclick="handleClick(8)"></div>
+    </div>
+    <div id="status" class="status"></div>
+    <button id="restartBtn" class="restart-btn" onclick="restartGame()">Restart</button>
+    <script src="script.js"></script>
+</body>
+</html>
+
+CSS (style.css):
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    cursor: pointer;
+}
+
+.status {
+    margin-top: 20px;
+}
+
+.restart-btn {
+    margin-top: 20px;
+    font-size: 1em;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+Javascript (script.js):
+const X_CLASS = 'x';
+const O_CLASS = 'o';
+let currentPlayerClass = X_CLASS;
+let gameBoard = ['', '', '', '', '', '', '', '', ''];
+let gameActive = true;
+
+const winningCombinations = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
+
+const board = document.getElementById('board');
+const statusMessage = document.getElementById('status');
+
+function handleClick(cellIndex) {
+    if (!gameActive || gameBoard[cellIndex] !== '') return;
+    
+    gameBoard[cellIndex] = currentPlayerClass;
+    board.children[cellIndex].classList.add(currentPlayerClass);
+    
+    if (checkWin(currentPlayerClass)) {
+        endGame(false);
+    } else if (isDraw()) {
+        endGame(true);
+    } else {
+        swapTurns();
+    }
+}
+
+function checkWin(player) {
+    return winningCombinations.some(combination => {
+        return combination.every(index => {
+            return gameBoard[index] === player;
+        });
+    });
+}
+
+function isDraw() {
+    return gameBoard.every(cell => {
+        return cell !== '';
+    });
+}
+
+function swapTurns() {
+    currentPlayerClass = currentPlayerClass === X_CLASS ? O_CLASS : X_CLASS;
+    statusMessage.textContent = `${currentPlayerClass.toUpperCase()}'s turn`;
+}
+
+function endGame(draw) {
+    if (draw) {
+        statusMessage.textContent = "It's a draw!";
+    } else {
+        statusMessage.textContent = `${currentPlayerClass.toUpperCase()} wins!`;
+    }
+    gameActive = false;
+}
+
+function restartGame() {
+    gameActive = true;
+    currentPlayerClass = X_CLASS;
+    gameBoard = ['', '', '', '', '', '', '', '', ''];
+    statusMessage.textContent = `${currentPlayerClass.toUpperCase()}'s turn`;
+    board.querySelectorAll('.cell').forEach(cell => {
+        cell.classList.remove(X_CLASS);
+        cell.classList.remove(O_CLASS);
+    });
+}
+
